@@ -1,4 +1,18 @@
 spring:
+  sql:
+    init:
+      mode: always
   h2:
     console:
-      enabled: true
+      enabled: true            # H2 콘솔 활성화
+  jpa:
+    hibernate:
+      ddl-auto: none # 이 설정 뭐야
+    show-sql: true # jpa에서 sql문을 콘솔에서 보여준다.
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+
+
