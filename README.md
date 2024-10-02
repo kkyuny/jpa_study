@@ -15,8 +15,8 @@ jpa:
       format_sql: true
 ```
 강의에서는 schema.sql 파일도 생성하지 않았고 jpa의 ddl-auto 설정이 없었지만 data.sql의 insert문이 정상 동작하였다.
-하지만 내 환경에서는 동작하지 않아서 schema.sql 파일을 생성하고 테이블을 create 해보았지만 data.sql 쿼리문이 동작하지 않았다.
-결국 Hibernate가 테이블을 생성하거나 수정하지 않는 ddl-auto: none 설정을 추가하니 data.sql과 schema.sql이 동작하고 테스트 코드를 정상 실행할 수 있었다.
+하지만 내 환경에서는 동작하지 않아서 schema.sql 파일에서 테이블을 create 해보았지만 data.sql 쿼리문이 동작하지 않았다.
+결국 Hibernate가 테이블을 생성하거나 수정하지 않는 ddl-auto: none 설정을 추가하니 data.sql과 schema.sql이 정상 작동하고 테스트 코드를 통과할 수 있었다.
 
 아래는 ddl-auto의 각각의 option이다. schema.sql 없이 create로 설정했을 때 코드가 동작하는지 확인해봐야겠다.
 - none: Hibernate가 데이터베이스와 관련된 어떤 작업도 수행하지 않음. 즉, 테이블을 생성하거나 수정하지 않음.
@@ -26,4 +26,4 @@ jpa:
 - validate: 테이블이 존재하는지와 엔티티 매핑이 일치하는지 검증만 하고, 변경이나 생성은 하지 않음.
 #### 3. 추가 정리 
 - getOne, findById
-- 컨스트럭트 생성
+- 롬복 컨스트럭트 어노테이션
