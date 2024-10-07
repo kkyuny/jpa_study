@@ -25,6 +25,4 @@ public class Users {
     @Column(name = "updated_at")
     private LocalDateTime updateAt;
 
-    public Users(String jack, String mail) {
-    }
 }
