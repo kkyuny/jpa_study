@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 class UserTest {
     @Test
     void test() {
-        User user = new User();
+        Users user = new Users();
         user.setEmail("test@test.com");
         user.setName("test");
 
