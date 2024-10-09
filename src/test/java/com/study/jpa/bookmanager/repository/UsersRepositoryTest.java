@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.endsWith;
+
 
 @SpringBootTest
 class UsersRepositoryTest {
@@ -134,5 +134,24 @@ class UsersRepositoryTest {
         ExampleMatcher matcher2 = ExampleMatcher.matching()
                 .withIgnorePaths("name")
                 .withMatcher("email", contains());
+    }
+
+    @Test
+    void crud5(){
+        /* save 메서드는 기본적으로 @Transactional 어노테이션이 있다.
+            save 메서드는 entity를 조회해서 isNew(null)이면 insert 아니면 update를 수행한다.
+            saveAll은 findAll로 select를 실행 후 for문을 돌면서 save를 실행한다. 즉 여러번의 insert가 발생하게 된다.
+            deleteAll도 findAll로 select를 실행 후 for문을 돌면서 delete를 실행한다.
+            하지만 deleteAllInBatch는 전체를 where 조건 없이 혹은 in절을 이용하여 delete를 실행하기 때문에 성능 상 이점이 있다. */
+        Users user = new Users();
+        user.setName("test");
+        user.setEmail("test@test.com");
+
+        // insert문이 실행된다.
+        usersRepository.save(user);
+
+        user.setEmail("updateTest@test.com");
+        // select문을 실행 후 update를 진행한다.
+        usersRepository.save(user);
     }
 }
