@@ -1,6 +1,7 @@
 ## Ch03. QueryMethod 살펴보기
 #### 1. IL
 - jpa에서 사용하는 QueryMethod들을 배웠다.
+- 다양한 네임의 쿼리 메서드들이 제공되는데 이는 코드 가독성을 높이기 위해서 다양한 형태의 네임이 제공되는 것이라고 한다.
     
 #### 2. 트러블슈팅
 - JPA/ could not initialize proxy - no Session
