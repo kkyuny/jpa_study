@@ -4,14 +4,15 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor // jpa에서는 인자가 없는 생성자가 필요하기 때문에 선언한다.
 @AllArgsConstructor // jpa 엔티티 선언
 @Getter
 @Setter
-@ToString
 @Builder // 빌더의 형식을 갖고 생성자를 생성
 @Entity
+@ToString
 @Table(name = "users")
 public class Users {
     @Id
@@ -25,4 +26,6 @@ public class Users {
     @Column(name = "updated_at")
     private LocalDateTime updateAt;
 
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<Address> address;
 }
