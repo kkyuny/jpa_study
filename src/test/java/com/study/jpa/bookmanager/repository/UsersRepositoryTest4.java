@@ -12,6 +12,6 @@ public class UsersRepositoryTest4 {
     private UsersRepository usersRepository;
 
     @Test
-    void test1() {
+    void test() {
     }
 }
