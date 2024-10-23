@@ -30,14 +30,30 @@ public class Users {
             3) TABLE: DB 종류에 상관없이 id 값을 관리하는 별도의 테이블을 두어 id를 추출하여 사용한다.
             4) AUTO: default 값이며 각 db에 적절한 방식을 사용한다고 한다.
      */
+    @Column(name = "name")
+    /* 해당 컬럼의 name을 정할 수 있는 어노테이션이다.
+        name에 설정한 값이 db와 실제 매핑되기 때문에 class의 필드 값과 상이하게 사용할 수 있다.
+        @Column(unique = true) : 해당 컬럼이 유니크 속성을 갖는다.
+     */
     private String name;
+    @NonNull // 해당 컬럼이 not null 속성을 갖는다.
     private String email;
     // jpa에서 생성과 수정된 시간은 일반적으로 도메인에 항상 포함되게 되어있다.
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createAt;
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", insertable = false)
     private LocalDateTime updateAt;
 
     @OneToMany(fetch = FetchType.EAGER)
     private List<Address> address;
+
+    @Transient // 해당 어노테이션을 추가하면 영속성 관리에서 제외되어 db에 영향을 주지 않는다.
+    private String testDate;
+
+    @Enumerated(value = EnumType.STRING)
+    /* enum의 매핑을 String으로 하게 된다.
+        순서로 매핑을 하게되면 enum class의 순서가 변경될 경우 잘못된 값이 매핑될 수 있기 때문에
+        value = EnumType.STRING의 설정을 반드시 사용하도록 하자.
+     */
+    private Gender gender;
 }
