@@ -1,7 +1,12 @@
 package com.study.jpa.bookmanager.domain;
 
+import com.study.jpa.bookmanager.domain.listener.Auditable;
+import com.study.jpa.bookmanager.domain.listener.UserEntityListener;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,14 +17,16 @@ import java.util.List;
 @Setter
 @Builder // 빌더의 형식을 갖고 생성자를 생성
 @Entity
-@ToString
+/*@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)*/
 @Table(name = "users")
+@EntityListeners(value = {AuditingEntityListener.class, UserEntityListener.class})
 /* 기본적으로 설정하지 않지만 table 네임의 지정 등이 필요할 때 사용한다.
     일반적으로 엔티티와 테이블의 네임은 동일하게 매핑시켜 사용한다.
     그 외 index, unique 설정을 할 수 있다.
     하지만 실제 db에 설정해서 사용하는 것이 여러가지 이유로 보편적인 사용이다.
  */
-public class Users {
+public class Users implements Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // auto increase
     private Long id;
@@ -40,8 +47,10 @@ public class Users {
     private String email;
     // jpa에서 생성과 수정된 시간은 일반적으로 도메인에 항상 포함되게 되어있다.
     @Column(name = "created_at", updatable = false)
+    @CreatedDate
     private LocalDateTime createAt;
     @Column(name = "updated_at", insertable = false)
+    @LastModifiedDate
     private LocalDateTime updateAt;
 
     @OneToMany(fetch = FetchType.EAGER)
@@ -56,4 +65,52 @@ public class Users {
         value = EnumType.STRING의 설정을 반드시 사용하도록 하자.
      */
     private Gender gender;
+
+    /*
+    JPA에서는 7가지 이벤트 리스너 기능을 제공한다.
+    @PrePersist
+    @PreRemove
+    @PreUpdate
+    @PostPersist
+    @PostUpdate
+    @PostRemove
+    @PostLoad
+    각각의 기능은 이름에 직관적으로 잘 나타나있다.
+    */
+
+    @PrePersist
+    public void prePersist(){
+        System.out.println(">>> prePersist");
+        this.setCreateAt(LocalDateTime.now());
+    }
+
+    @PostPersist
+    public void postPersist(){
+        System.out.println(">>> postPersist");
+    }
+
+    @PreUpdate
+    public void preUpdate(){
+        System.out.println(">>> preUpdate");
+        this.setUpdateAt(LocalDateTime.now());
+    }
+    @PostUpdate
+    public void postUpdate(){
+        System.out.println(">>> postUpdate");
+    }
+
+    @PreRemove
+    public void preRemove(){
+        System.out.println(">>> preRemove");
+    }
+
+    @PostRemove
+    public void postRemove(){
+        System.out.println(">>> postRemove");
+    }
+
+    @PostLoad
+    public void postLoad(){
+        System.out.println(">>> postLoad");
+    }
 }
