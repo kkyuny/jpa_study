@@ -1,4 +1,4 @@
-## Ch03. Entity 기본속성 살펴보기
+## Ch04. Entity 기본속성 살펴보기
 #### 1. IL
 - 도메인 패키지에서 Entity의 여러가지 속성에 대해 공부하였다.
 - id를 생성하는 4가지 관점에 대해 알게 되었다.
@@ -15,4 +15,23 @@
 이 때, enum의 저장순서가 변경되면 db에 저장된 값과 잘못된 값이 매핑되는 문제가 발생할 수 있다.
 이를 위해 EnumType.STRING 설정을 하게 된다면 순서에 상관 없이 db에 저장된 값과 매핑되어 문제를 해결할 수 있다.
 #### 3. 추가 정리 
-- 트러블 슈팅 관련 내용 정리하기
+- 트러블슈팅 내용 추가정리
+```
+  public enum Gender {
+    MALE,
+    FEMALE
+  }
+  와 같이 enum이 선언되어 있다면 실제 DB에는 MALE은 1, FEMALE은 2로 저장된다.
+  여기서 
+  public enum Gender {
+    MALE,
+    UNKNOWN,
+    FEMALE
+  } 
+  와 같이 입력 누락 등의 이유로 중간에 새로운 항목이 추가된다라고 하면 
+  기존의 FEMALE의 값이 2가 되고 UNKNOWN의 값은 1이 된다.
+  하지만 DB의 값은 새로운 enum에 맞춰 변하지 않기 때문에 혼동이 발생할 수 있다.
+  
+  이 때 @Enumerated(value = EnumType.STRING)를 사용하게 되면
+  enum의 값이 실제 DB와 동일하게 저장되기 때문에 앞서 말한 문제를 해결할 수 있다.
+```
