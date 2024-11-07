@@ -42,7 +42,7 @@ UserHistoryRepository userHistoryRepository = BeanUtils.getBean(UserHistoryRepos
 ```
 - UserHistory 엔티티에서 @EntityListeners(value = {MyEntityListener.class, UserEntityListener.class})
 - 와 같이 위 리스너를 value로 등록하였고, 테스트 코드를 수행하면서 리스너가 동작할 때 Object o를 Users 엔티티로 cast하지 못했기 때문이다.
--
+
 #### 3. 추가 정리
 - 엔티티 리스너가 빈 주입이 되지 않는 이유
   - @EntityListeners(value = {UserEntityListener.class})와 같이 엔티티 리스너로 등록된 클래스는
