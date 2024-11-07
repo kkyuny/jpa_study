@@ -1,11 +1,9 @@
 package com.study.jpa.bookmanager.domain;
 
 import com.study.jpa.bookmanager.domain.listener.Auditable;
+import com.study.jpa.bookmanager.domain.listener.MyEntityListener;
 import com.study.jpa.bookmanager.domain.listener.UserEntityListener;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -20,7 +18,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @Data
-@EntityListeners(value = {AuditingEntityListener.class, UserEntityListener.class})
+@EntityListeners(value = {MyEntityListener.class})
 public class UserHistory implements Auditable {
     @Id
     @GeneratedValue

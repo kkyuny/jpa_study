@@ -1,30 +1,74 @@
-## Ch03. QueryMethod 살펴보기
+## Ch05. Listener 활용하기
 #### 1. IL
-- jpa에서 사용하는 QueryMethod들을 배웠다.
-- 다양한 네임의 쿼리 메서드들이 제공되는데 이는 코드 가독성을 높이기 위해서 다양한 형태의 네임이 제공되는 것이라고 한다.
+- jpa에서 사용하는 Listener를 배웠다.
+```
+JPA에서는 아래와 같이 7가지 이벤트 리스너 기능을 제공한다.
+@PrePersist
+@PreRemove
+@PreUpdate
+@PostPersist
+@PostUpdate
+@PostRemove
+@PostLoad
+각각의 기능은 직관적으로 잘 나와있는 것 같다.
+특히 mybatis를 주로 쓰는 나의 입장에서는 쿼리문을 수행하기 전과 후의 동작을 설정하여 사용한다는 점에서
+데이터의 create, update 시간의 입력, 특정 쿼리 수행 시 history create 등의 사용으로 코드 효율성이 크게 높아질 수 있을 것 같다고 생각했다.
+하지만 반면으로는 이를 위해 인터페이스를 생성하고, Entity에 Listener 설정을 하는 등의 수고는 감수해야한다.
+```
     
 #### 2. 트러블슈팅
-- JPA/ could not initialize proxy - no Session
-  - JPA를 사용하여 DB에 저장 된 리소스를 불러와 반환하는 경우, 값의 생명주기를 결정하는 방식은 lazy와 eager 방식이 있다.
-  - lazy는 컨트롤러 -> 서비스 -> 레포지토리를 통해서 값을 반환받을 때, 값을 초기화하지 않고 proxy 객체에 정보를 채워 사용하게 된다.
-  - proxy 객체에 담긴 값은 서비스 영역에서 트랜잭션과 동일한 생명주기를 갖기 때문에 컨트롤러로 값이 반환되는 순간 영속성 상태가 끝나게 된다. 그렇기 때문에 컨트롤러 영역에서 반환된 값을 사용하게 되면 could not initialize proxy - no Session 에러가 발생하는 것이다.
-  - 해결방법
-    - lazy 방식이 아닌 eager 방식(즉시로딩)을 사용(비추): 값을 가져올 때 proxy 객체에 정보를 채우는 것이 아닌 해당 객체에 바로 정보를 채워 영속성 이슈를 없앤다.
-    - 반환 된 값을 컨트롤러에서 사용하는 것이 아닌 서비스단에서 해당 값을 처리(추천): 영속성이 보장되는 서비스단에서 필요에 맞게 해당 값을 처리하여 영속성 이슈를 발생시키지 않는다.
-- @OneToMany 설정 시 jpa에서 필요한 테이블 자동생성 이슈
-  - 지난 번 ch02에서 ddl-auto 옵션을 아래와 같이 설정하였다. none라는 옵션은 jpa 사용에 필요한 테이블들은 직접 선언하여 생성하겠다는 옵션이다.
+- java.lang.ClassCastException
+  - user 테이블에 insert 전 userHistory를 insert하는 과정에서 해당 에러가 발생하였다.
+  - 에러 원인은 호환되지 않는 클래스 유형을 형 변환하려고 했기 때문이다.
 ```
-jpa:
-  hibernate:
-    ddl-auto: none
+//@Component // 엔티티 리스너는 스프링 빈을 주입받지 못한다.
+public class UserEntityListener {
+@PreUpdate
+@PrePersist
+public void prePersistAndPreUpdate(Object o){
+// 스프링 빈을 주입받지 못하기 때문에 BeanUtils를 생성하여 bean을 가져온다.
+UserHistoryRepository userHistoryRepository = BeanUtils.getBean(UserHistoryRepository.class);
+
+        Users user = (Users) o;
+
+        UserHistory userHistory = new UserHistory();
+        userHistory.setUserId(user.getId());
+        userHistory.setName(user.getName());
+        userHistory.setEmail(user.getEmail());
+
+        userHistoryRepository.save(userHistory);
+    }
+}
 ```
-  - 그래서 @OneToMany로 테이블간에 매핑관계를 설정 시 매핑에 필요한 중간테이블을 생성하지 못하는 이슈가 발생하게 되었다. 그래서 ddl-auto 옵션을 update로 선언하여 이슈를 해결하였다. 아래는 ddl-auto에 대한 옵션 정리이다.
-```
-none: 스키마 작업을 하지 않음. 데이터베이스 테이블은 이미 존재해야 하며, JPA가 이를 자동으로 생성하거나 수정하지 않는다.
-update: 테이블이 없으면 생성하고, 기존 테이블이 있으면 변경 사항을 반영하여 업데이트한다.
-create: 애플리케이션 시작 시 기존 테이블을 모두 삭제한 후 새로 생성한다.
-create-drop: 애플리케이션 시작 시 테이블을 생성하고, 애플리케이션 종료 시 테이블을 삭제한다.
-validate: 데이터베이스와 엔티티 간의 스키마가 일치하는지 확인만 하고, 생성이나 업데이트 작업은 하지 않는다.
-```
+- UserHistory 엔티티에서 @EntityListeners(value = {MyEntityListener.class, UserEntityListener.class})
+- 와 같이 위 리스너를 value로 등록하였고, 테스트 코드를 수행하면서 리스너가 동작할 때 Object o를 Users 엔티티로 cast하지 못했기 때문이다.
+- 
 #### 3. 추가 정리 
-- 연관 매핑관계 정리하기
+- 엔티티 리스너가 빈 주입이 되지 않는 이유
+  - @EntityListeners(value = {UserEntityListener.class})와 같이 엔티티 리스너로 등록된 클래스는
+  - 간단히 말하면 Spring IOC 컨테이너의 관리대상이 아니기 때문이다.
+  - 그렇기 때문에 아래와 같이 빈을 직접 주입하는 코드를 만들어 빈을 주입하도록 해야한다.
+```
+@Component
+public class BeanUtils implements ApplicationContextAware {
+    private static ApplicationContext applicationContext;
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        BeanUtils.applicationContext = applicationContext;
+    }
+
+    public static <T> T getBean(Class<T> clazz) {
+        return applicationContext.getBean(clazz);
+    }
+}
+
+@PreUpdate
+@PrePersist
+public void prePersistAndPreUpdate(Object o){
+    // 스프링 빈을 주입받지 못하기 때문에 BeanUtils를 생성하여 bean을 가져온다.
+    UserHistoryRepository userHistoryRepository = BeanUtils.getBean(UserHistoryRepository.class);
+    
+    ...
+}
+```
