@@ -18,17 +18,17 @@ import java.util.List;
 @Setter
 @Builder // 빌더의 형식을 갖고 생성자를 생성
 @Entity
-@ToString
 /*@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)*/
 @Table(name = "users")
-@EntityListeners(value = {MyEntityListener.class, UserEntityListener.class})
+@ToString(callSuper = true) // 상속받는 부모 필드값의 표현을 위해서 선언이 필요하다.
+@EntityListeners(value = {UserEntityListener.class})
 /* 기본적으로 설정하지 않지만 table 네임의 지정 등이 필요할 때 사용한다.
     일반적으로 엔티티와 테이블의 네임은 동일하게 매핑시켜 사용한다.
     그 외 index, unique 설정을 할 수 있다.
     하지만 실제 db에 설정해서 사용하는 것이 여러가지 이유로 보편적 인 사용이다.
  */
-public class Users implements Auditable {
+public class Users extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // auto increase
     private Long id;
@@ -48,12 +48,7 @@ public class Users implements Auditable {
     @NonNull // 해당 컬럼이 not null 속성을 갖는다.
     private String email;
     // jpa에서 생성과 수정된 시간은 일반적으로 도메인에 항상 포함되게 되어있다.
-    @Column(name = "created_at", updatable = false)
-    @CreatedDate
-    private LocalDateTime createAt;
-    @Column(name = "updated_at", insertable = false)
-    @LastModifiedDate
-    private LocalDateTime updateAt;
+
 
     @OneToMany(fetch = FetchType.EAGER)
     private List<Address> address;

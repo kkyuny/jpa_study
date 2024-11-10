@@ -18,16 +18,12 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @Data
-@EntityListeners(value = {MyEntityListener.class})
-public class UserHistory implements Auditable {
+@ToString(callSuper = true)
+public class UserHistory extends BaseEntity {
     @Id
     @GeneratedValue
     private Long id;
     private Long userId;
     private String name;
     private String email;
-    @CreatedDate // AuditingEntityListener가 감지 시 CreatedDate를 입력한다.
-    private LocalDateTime createAt;
-    @LastModifiedDate // AuditingEntityListener가 감지 시 LastModifiedDate를 입력한다.
-    private LocalDateTime updateAt;
 }
