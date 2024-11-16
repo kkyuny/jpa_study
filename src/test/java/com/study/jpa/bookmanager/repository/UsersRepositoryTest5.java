@@ -1,12 +1,14 @@
 package com.study.jpa.bookmanager.repository;
 
 import com.study.jpa.bookmanager.domain.Gender;
+import com.study.jpa.bookmanager.domain.UserHistory;
 import com.study.jpa.bookmanager.domain.Users;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @SpringBootTest
 public class UsersRepositoryTest5 {
@@ -82,5 +84,26 @@ public class UsersRepositoryTest5 {
         usersRepository.save(user);
 
         userHistoryRepository.findAll().forEach(System.out::println);
+    }
+
+    @Test
+    void userRelationTest(){
+        Users user = new Users();
+        user.setName("test");
+        user.setEmail("test@test.com");
+        user.setGender(Gender.MALE);
+
+        usersRepository.save(user);
+
+        user.setName("newTest");
+        usersRepository.save(user);
+
+        //userHistoryRepository.findAll().forEach(System.out::println);
+        /*List<UserHistory> result = userHistoryRepository.findByUserId(
+                usersRepository.findByEmail("test@test.com").getId());*/
+
+        List<UserHistory> result = usersRepository.findByEmail("test@test.com").getUserHistoryList();
+
+        result.forEach(System.out::println);
     }
 }

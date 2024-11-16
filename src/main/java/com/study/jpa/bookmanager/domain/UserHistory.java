@@ -23,6 +23,7 @@ public class UserHistory extends BaseEntity {
     @Id
     @GeneratedValue
     private Long id;
+    @Column(name = "user_id")
     private Long userId;
     private String name;
     private String email;

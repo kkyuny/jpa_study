@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor // jpa에서는 인자가 없는 생성자가 필요하기 때문에 선언한다.
@@ -49,20 +50,27 @@ public class Users extends BaseEntity {
     private String email;
     // jpa에서 생성과 수정된 시간은 일반적으로 도메인에 항상 포함되게 되어있다.
 
-
     @OneToMany(fetch = FetchType.EAGER)
     private List<Address> address;
 
     @Transient // 해당 어노테이션을 추가하면 영속성 관리에서 제외되어 db에 영향을 주지 않는다.
     private String testDate;
 
-    @Enumerated(value = EnumType.STRING)
     /* enum의 매핑을 String으로 하게 된다.
         순서로 매핑을 하게되면 enum class의 순서가 변경될 경우 잘못된 값이 매핑될 수 있기 때문에
         value = EnumType.STRING의 설정을 반드시 사용하도록 하자.
      */
+    @Enumerated(value = EnumType.STRING)
     private Gender gender;
 
+    /* 변수명에 복수형을 쓰는것이 트렌드이다.
+        추가로 로직에 따라서 userHistoryList가 널포인트익셉션이 발생할 수 있기 때문에 기본형을 선언해주는 것이 좋다.
+        join column을 명시하지 않으면 가상의 조인 테이블을 생성하게 된다.
+        그리고 insertable, updateable 설정을 추가하여 User 테이블에서 해당 값을 조작하지 못하도록 한다.
+     */
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private List<UserHistory> userHistoryList = new ArrayList<>();
     /*
     JPA에서는 7가지 이벤트 리스너 기능을 제공한다.
     @PrePersist
@@ -74,40 +82,4 @@ public class Users extends BaseEntity {
     @PostLoad
     각각의 기능은 이름에 직관적으로 잘 나타나있다.
     */
-
-    @PrePersist
-    public void prePersist(){
-        System.out.println(">>> prePersist");
-        this.setCreateAt(LocalDateTime.now());
-    }
-
-    @PostPersist
-    public void postPersist(){
-        System.out.println(">>> postPersist");
-    }
-
-    @PreUpdate
-    public void preUpdate(){
-        System.out.println(">>> preUpdate");
-        this.setUpdateAt(LocalDateTime.now());
-    }
-    @PostUpdate
-    public void postUpdate(){
-        System.out.println(">>> postUpdate");
-    }
-
-    @PreRemove
-    public void preRemove(){
-        System.out.println(">>> preRemove");
-    }
-
-    @PostRemove
-    public void postRemove(){
-        System.out.println(">>> postRemove");
-    }
-
-    @PostLoad
-    public void postLoad(){
-        System.out.println(">>> postLoad");
-    }
 }
