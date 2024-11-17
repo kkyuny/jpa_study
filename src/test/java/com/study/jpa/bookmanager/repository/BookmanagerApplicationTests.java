@@ -1,4 +1,4 @@
-package com.study.jpa.bookmanager;
+package com.study.jpa.bookmanager.repository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
