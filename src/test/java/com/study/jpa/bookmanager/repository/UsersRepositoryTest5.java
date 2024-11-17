@@ -104,6 +104,7 @@ public class UsersRepositoryTest5 {
 
         List<UserHistory> result = usersRepository.findByEmail("test@test.com").getUserHistoryList();
 
+        System.out.println(usersRepository.findById(1L));
         result.forEach(System.out::println);
     }
 }

@@ -41,7 +41,6 @@ public class BookReviewInfoRepositoryTest {
         Book book = new Book();
         book.setName("Jpa 초격차 패키지");
         book.setAuthorId(1L);
-        book.setPublisherId(1L);
 
         return bookRepository.save(book); // 저장된 엔티티는 개당 객체를 바로 리턴한다.
     }

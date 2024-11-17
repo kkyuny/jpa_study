@@ -13,7 +13,7 @@ import jakarta.persistence.PreUpdate;
 public class UserEntityListener {
     @PostUpdate
     @PostPersist // Pre에서 Post로 바꾼 이유는 userId를 얻을 수 없기 때문이다.
-    public void prePersistAndPreUpdate(Object o){
+    public void postPersistAndPostUpdate(Object o){
         // 스프링 빈을 주입받지 못하기 때문에 BeanUtils를 생성하여 bean을 가져온다.
         UserHistoryRepository userHistoryRepository = BeanUtils.getBean(UserHistoryRepository.class);
 

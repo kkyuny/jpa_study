@@ -13,7 +13,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @Entity
 @ToString(callSuper = true) // 상속받는 부모 필드값의 표현을 위해서 선언이 필요하다.
-@EqualsAndHashCode(callSuper = true)
 public class BookReviewInfo extends BaseEntity{
     @Id
     @GeneratedValue

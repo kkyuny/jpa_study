@@ -71,15 +71,9 @@ public class Users extends BaseEntity {
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private List<UserHistory> userHistoryList = new ArrayList<>();
-    /*
-    JPA에서는 7가지 이벤트 리스너 기능을 제공한다.
-    @PrePersist
-    @PreRemove
-    @PreUpdate
-    @PostPersist
-    @PostUpdate
-    @PostRemove
-    @PostLoad
-    각각의 기능은 이름에 직관적으로 잘 나타나있다.
-    */
+
+    @OneToMany
+    @JoinColumn(name = "user_id")
+    @ToString.Exclude
+    private List<Review> reviews = new ArrayList<>();
 }

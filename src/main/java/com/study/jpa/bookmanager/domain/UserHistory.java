@@ -27,4 +27,8 @@ public class UserHistory extends BaseEntity {
     private Long userId;
     private String name;
     private String email;
+
+    @ManyToOne()
+    @ToString.Exclude
+    Users users;
 }
