@@ -35,4 +35,8 @@ public class Book extends BaseEntity implements Auditable {
     @ManyToOne()
     @ToString.Exclude
     private Publisher publisher;
+
+    @ManyToMany
+    @ToString.Exclude
+    private List<Author> authors = new ArrayList<>();
 }
