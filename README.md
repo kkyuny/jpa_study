@@ -36,7 +36,3 @@ private List<UserHistory> userHistoryList = new ArrayList<>();
 private List<Review> reviews = new ArrayList<>();
 - 위 엔티티 코드에서 userHistoryList를 Lazy 방식으로 reviews를 Eager 방식을 사용하면 에러가 발생한다.
 ```
-
-#### 3. 추가 정리
-- @Data 어노테이션
-- 
