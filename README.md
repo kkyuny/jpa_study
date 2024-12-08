@@ -34,6 +34,9 @@
 
 - @Transaction의 역할
   - 어노테이션이 적용된 영역 내에서 모든 쿼리가 문제 없이 실행되는 시점에 DB에 commit을 하게 된다.
+  - 문제가 발생하면 명령어들이 rollback 된다.
+  - 언체크드 Exception이 발생한 경우에는 commit되지 않고 rollback 된다.
+  - 하지만 체크드 Exception은 try-catch문으로 Exception을 핸들링 하지 않으면 rollback되지 않는다.
 ```
 @OneToMany(fetch = FetchType.EAGER)
 @JoinColumn(name = "user_id", insertable = false, updatable = false)
