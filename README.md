@@ -35,8 +35,15 @@
 - @Transaction의 역할
   - 어노테이션이 적용된 영역 내에서 모든 쿼리가 문제 없이 실행되는 시점에 DB에 commit을 하게 된다.
   - 문제가 발생하면 명령어들이 rollback 된다.
-  - 언체크드 Exception이 발생한 경우에는 commit되지 않고 rollback 된다.
+  - 런타임 Exception이 발생한 경우에는 commit되지 않고 rollback 된다.
   - 하지만 체크드 Exception은 try-catch문으로 Exception을 핸들링 하지 않으면 rollback되지 않는다.
+  - 스프링에선 TransactionAspectSupport라는 클래스의 completeTransactionAfterThrowing 메서드에서 
+  - rollBackOn의 상태를 확인하여 처리가 된다.
+  - 이 때 rollBackOn은 런타임 Exceoption 타입이나 Error 타입인 경우에만 롤백을 처리하고 그 외의 경우엔 커밋을 진행한다.
+  - rollBackOn에 체크드 exception을 추가하여 사용하는 방법은 아래와 같다.
+  - @Transactional(rollbackFor = Excepti  on.class) -> rollbackFor를 사용한다.
+  - 또, 실수가 많이 일어나는 포인트로 다른 메서드에 의해 호출되는 메서드에는 @Transaction를 사용하면 트랜잭션이 일어나지 않는다.
+  - 스프링 컨테이너가 bean에 접근할 때 다른 메서드에 의해 호출되는 메서드의 어노테이션을 처리하지 못하기 때문이다.
 ```
 @OneToMany(fetch = FetchType.EAGER)
 @JoinColumn(name = "user_id", insertable = false, updatable = false)
