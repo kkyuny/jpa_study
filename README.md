@@ -44,6 +44,15 @@
   - @Transactional(rollbackFor = Excepti  on.class) -> rollbackFor를 사용한다.
   - 또, 실수가 많이 일어나는 포인트로 다른 메서드에 의해 호출되는 메서드에는 @Transaction를 사용하면 트랜잭션이 일어나지 않는다.
   - 스프링 컨테이너가 bean에 접근할 때 다른 메서드에 의해 호출되는 메서드의 어노테이션을 처리하지 못하기 때문이다.
+
+- 스프링 Transaction의 isolation과 propagtion
+  - 트랜잭션의 다양한 격리와 전파 단계를 제공한다.
+  - isolation: 4가지의 격리 단계가 있고 아래로 내려갈 수록 격리가 강화된다.
+    - DEFAULT: 기본 격리 단계로 mysql은 REPEATABLE_READ이 적용된다.
+    - READ_UNCOMMITTED: 커밋되지 않은 데이터를 읽을 수 있다. 그래서 더티리드라고도 불리며 업데이트 시 DB락 같은 문제가 발생할 수 있다.
+    - READ_COMMITTED: 커밋된 데이터만 읽을 수 있다. @DynamicUpdate 같은 어노테이션을 사용하지 않아도 된다.
+    - REPEATABLE_READ: 
+    - SERIALZABLE
 ```
 @OneToMany(fetch = FetchType.EAGER)
 @JoinColumn(name = "user_id", insertable = false, updatable = false)
