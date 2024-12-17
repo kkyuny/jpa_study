@@ -47,12 +47,13 @@
 
 - 스프링 Transaction의 isolation과 propagtion
   - 트랜잭션의 다양한 격리와 전파 단계를 제공한다.
-  - isolation: 4가지의 격리 단계가 있고 아래로 내려갈 수록 격리가 강화된다.
+  - 4가지의 단계가 있고 아래로 내려갈 수록 격리가 강화된다.
     - DEFAULT: 기본 격리 단계로 mysql은 REPEATABLE_READ이 적용된다.
     - READ_UNCOMMITTED: 커밋되지 않은 데이터를 읽을 수 있다. 그래서 더티리드라고도 불리며 업데이트 시 DB락 같은 문제가 발생할 수 있다.
     - READ_COMMITTED: 커밋된 데이터만 읽을 수 있다. @DynamicUpdate 같은 어노테이션을 사용하지 않아도 된다.
-    - REPEATABLE_READ: 
-    - SERIALZABLE
+    - REPEATABLE_READ: 트랜잭션 내에서 같은 값을 여러번 조회하더라도 같은 값을 항상 제공한다.
+    - SERIALZABLE: 커밋이 일어나지 않은 트랜잭션이 존재하면 락을 통해 웨이팅을 한다. 커밋이 되어야만 로직이 진행된다.
+
 ```
 @OneToMany(fetch = FetchType.EAGER)
 @JoinColumn(name = "user_id", insertable = false, updatable = false)
