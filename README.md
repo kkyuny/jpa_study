@@ -1,6 +1,7 @@
 ## Ch08. Cascade(영속성 전이) 활용하기
 #### 1. IL
-- Cascade
+- Cascade: 다른 엔티티와 관계설정을 하면서 @OneToMany(casecase = CASECASE.ALL) 등과 같은 형태로 선언하여 사용한다.
+- casecase는 [] 형태도 입력이 가능하다.
 - Cascade는 6개의 타입이 있다. 기본 값은 아무것도 설정되어 있지 않은 상태이다.
   - ALL: 
   - PERSIST: PERSIST가 일어날 때 연관이 되어있는 엔티티에도 PERSIST를 진행해라.
@@ -8,13 +9,14 @@
   - DETACH: 영속성 전이를 하지 않겠다.
   - REMOVE:
   - REFRESH:
+- 연관관계 제거
+  - 일반적으로 REMOVE를 이용하여 엔티티를 삭제하면 연관관계에 있는 엔티티의 값이 null로 set되어 값이 제거가 된다.
+  - 하지만 이 때 연관관계에 있는 엔티티들은 실제로 삭제가 되지 않는다.
+  - 연관관계에 있는 엔티티가 DB에서 삭제가 필요하다면 @OneToMany(orphanRemoval = true) 옵션을 추가하여 엔티티를 DB에서 삭제할 수 있다.
+  - 따라서 연관관계의 값만 제거하고 싶을 땐 REMOVE, 실제 연관된 DB 값까지 삭제가 필요할 땐 orphanRemoval = true를 이용하면 된다.
+- 소프트 딜리트
+  - 실제로 현업에서는 delete를 이용하여 값을 제거하는 경우는 특수한 경우를 제외하고 거의 없다.
+  - 그래서 보통 boolean deleted와 같은 컬럼을 추가하여 삭제여부를 확인한다.
+  - 삭제된 값을 제외하고 값을 호출하기 위해서 findAllByDeletedFalse()와 같이 값을 호출하거나
+  - 엔티티에 @Where(clause = "deleted = false")와 같은 어노테이션을 추가하여 처리할 수 있다.
 - JPA의 no session
-```
-@OneToMany(fetch = FetchType.EAGER)
-@JoinColumn(name = "user_id", insertable = false, updatable = false)
-private List<UserHistory> userHistoryList = new ArrayList<>();
-
-@ManyToOne()
-@ToString.Exclude
-private Users user;
-``` 
