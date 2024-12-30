@@ -13,3 +13,8 @@
   - 각각의 옵션이 이어져서 선언이 되기 때문에 사용에 주의가 필요하다.
   - ex)@Column(columnDefinition="datetime(6) default null", nullable = false)
     - 위와 같이 선언 시 ddl문에 null과 not null의 옵션이 이어져서 선언될 수 있다.
+- Native Query 활용하기
+  - @Query(value = "사용할 쿼리")에서 nativeQuery = true만 추가하면 된다.
+  - 네이티브 쿼리는 특정한 JPA의 설정과 엔티티의 속성을 사용하지 못하기 때문에 실제 DB테이블과 동일한 컬럼명과 테이블명을 사용해야한다.
+  - Show databases와 같은 JPA 형태로는 실행할 수 없는 쿼리를 네이티브 쿼리를 사용해서 실행한다.
+  - 네이티브 쿼리는 update와 같은 특정 DML문의 성능향상을 위해서 사용하는 경우가 있다.
