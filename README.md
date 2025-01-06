@@ -1,22 +1,26 @@
-## Ch08. Cascade(영속성 전이) 활용하기
+## Ch09. 커스텀 쿼리 사용하기
 #### 1. IL
-- Cascade: 다른 엔티티와 관계설정을 하면서 @OneToMany(casecase = CASECASE.ALL) 등과 같은 형태로 선언하여 사용한다.
-- casecase는 [] 형태도 입력이 가능하다.
-- Cascade는 6개의 타입이 있다. 기본 값은 아무것도 설정되어 있지 않은 상태이다.
-  - ALL: 
-  - PERSIST: PERSIST가 일어날 때 연관이 되어있는 엔티티에도 PERSIST를 진행해라.
-  - MERGE: MERGE가 일어날 때 ~~
-  - DETACH: 영속성 전이를 하지 않겠다.
-  - REMOVE:
-  - REFRESH:
-- 연관관계 제거
-  - 일반적으로 REMOVE를 이용하여 엔티티를 삭제하면 연관관계에 있는 엔티티의 값이 null로 set되어 값이 제거가 된다.
-  - 하지만 이 때 연관관계에 있는 엔티티들은 실제로 삭제가 되지 않는다.
-  - 연관관계에 있는 엔티티가 DB에서 삭제가 필요하다면 @OneToMany(orphanRemoval = true) 옵션을 추가하여 엔티티를 DB에서 삭제할 수 있다.
-  - 따라서 연관관계의 값만 제거하고 싶을 땐 REMOVE, 실제 연관된 DB 값까지 삭제가 필요할 땐 orphanRemoval = true를 이용하면 된다.
-- 소프트 딜리트
-  - 실제로 현업에서는 delete를 이용하여 값을 제거하는 경우는 특수한 경우를 제외하고 거의 없다.
-  - 그래서 보통 boolean deleted와 같은 컬럼을 추가하여 삭제여부를 확인한다.
-  - 삭제된 값을 제외하고 값을 호출하기 위해서 findAllByDeletedFalse()와 같이 값을 호출하거나
-  - 엔티티에 @Where(clause = "deleted = false")와 같은 어노테이션을 추가하여 처리할 수 있다.
-- JPA의 no session
+- 커스컴 쿼리를 사용하는 이유
+  - where절이 복잡해서 코드 가독성이 떨어지는 경우가 발생할 때 메서드 이름을 재정의해서 사용한다.
+  - 엔티티에 연결되지 않은 컬럼의 쿼리 사용이 필요할 때 사용한다.
+- 커스텀 쿼리 사용방법
+  - JPA의 엔티티를 기반으로 쿼리문을 작성한다면 JPQL이라고 보통 부르며, @Query(value = "사용할 쿼리 입력")과 같은 형태로 사용한다.
+  - 컬럼의 이름은 엔티티와 동일하게 사용하며, 파라미터는 ?1과 같은 형태(순서대로 입력 필요함)와 
+  - :컬럼명(메서드의 파라미터 부분에 @Param("컬럼명"))과 같이 name을 지정한 형태를 사용한다.
+- @Column(columnDefinition= ) 사용 시 주의점
+  - 컬럼 데피니션을 사용 시 sql type을 명시하지 않으면 타입이 삭제된다.
+  - 또한 값을 설정 시 nullable과 같은 다른 옵션과 호환되서 사용되는 것이 아니고
+  - 각각의 옵션이 이어져서 선언이 되기 때문에 사용에 주의가 필요하다.
+  - ex)@Column(columnDefinition="datetime(6) default null", nullable = false)
+    - 위와 같이 선언 시 ddl문에 null과 not null의 옵션이 이어져서 선언될 수 있다.
+- Native Query 활용하기
+  - @Query(value = "사용할 쿼리")에서 nativeQuery = true만 추가하면 된다.
+  - 네이티브 쿼리는 특정한 JPA의 설정과 엔티티의 속성을 사용하지 못하기 때문에 실제 DB테이블과 동일한 컬럼명과 테이블명을 사용해야한다.
+  - Show databases와 같은 JPA 형태로는 실행할 수 없는 쿼리를 네이티브 쿼리를 사용해서 실행한다.
+  - 네이티브 쿼리는 update와 같은 특정 DML문의 성능향상을 위해서 사용하는 경우가 있다.
+- Convert 사용하기
+  - 네이티브 쿼리를 통해 얻어온 값을 변환할 때 @Convert를 사용한다.
+  - 이 때 컨버터를 구현하기 위해서 AttributeConverter라는 인터페이스를 상속받아
+  - convertToDatabaseColumn과 convertToEntityAttribues라는 메서드를 구현해서 사용한다.
+  - convertToDatabaseColumn를 구현하지 않으면 영속성 컨텍스트에 의해서 해당 데이터가 유실 될 수 있다.
+  - 자주 사용하는 Convert는 autoApply = true 옵션을 사용하면 편리한 점이 있을 수 있다.
