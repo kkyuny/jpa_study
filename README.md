@@ -25,7 +25,8 @@
           format_sql: true
     ```
   - `ddl-auto: none` 설정으로 Hibernate가 테이블 생성/수정을 하지 않게 하니 `data.sql`과 `schema.sql`이 정상 작동 및 테스트 코드 통과.
-- **ddl-auto 옵션 정리**:
+- **Hibernate란?**: 자바에서 사용하는 ORM 프레임워크중 하나로 Hibernate 기반으로 만들어진 ORM 기술 표준이 JPA다.
+- **ddl-auto 옵션 정리**
   - **none**: Hibernate가 데이터베이스와 관련된 작업을 수행하지 않음 (테이블 생성/수정 미지원).
   - **update**: 기존 테이블 유지, 엔티티 변경 시 스키마 업데이트.
   - **create**: 애플리케이션 시작 시 기존 테이블 삭제 후 새 테이블 생성.
@@ -36,9 +37,9 @@
 
 #### 3. 추가 정리
 - **롬복(@ArgsConstructor) 어노테이션**
-  - 편리하지만 무분별한 사용을 방지하기 위해 주요 기능을 정리:
+  - 편리하지만 무분별한 사용을 방지하기 위해 주요 기능을 정리
     - `@NoArgsConstructor`: 파라미터 없는 디폴트 생성자 생성.
     - `@AllArgsConstructor`: 모든 필드를 파라미터로 받는 생성자 생성.
     - `@RequiredArgsConstructor`: `final`이나 `@NonNull` 필드만 파라미터로 받는 생성자 생성.
-  - **활용 팁**:
+  - **활용 팁**
     - 특정 필드만 초기화해야 하는 경우 `@NonNull`을 적절히 활용.
