@@ -1,30 +1,72 @@
-## Ch03. QueryMethod 살펴보기
+### Ch03. QueryMethod 살펴보기
+
 #### 1. IL
-- jpa에서 사용하는 QueryMethod들을 배웠다.
-- 다양한 네임의 쿼리 메서드들이 제공되는데 이는 코드 가독성을 높이기 위해서 다양한 형태의 네임이 제공되는 것이라고 한다.
-    
+- JPA에서 사용하는 QueryMethod를 학습함.
+- 다양한 네이밍의 쿼리 메서드들이 제공되며, 이는 코드 가독성을 높이기 위한 다양한 형태의 네임을 제공하기 위함.
+
+---
+
 #### 2. 트러블슈팅
-- JPA/ could not initialize proxy - no Session
-  - JPA를 사용하여 DB에 저장 된 리소스를 불러와 반환하는 경우, 값의 생명주기를 결정하는 방식은 lazy와 eager 방식이 있다.
-  - lazy는 컨트롤러 -> 서비스 -> 레포지토리를 통해서 값을 반환받을 때, 값을 초기화하지 않고 proxy 객체에 정보를 채워 사용하게 된다.
-  - proxy 객체에 담긴 값은 서비스 영역에서 트랜잭션과 동일한 생명주기를 갖기 때문에 컨트롤러로 값이 반환되는 순간 영속성 상태가 끝나게 된다. 그렇기 때문에 컨트롤러 영역에서 반환된 값을 사용하게 되면 could not initialize proxy - no Session 에러가 발생하는 것이다.
-  - 해결방법
-    - lazy 방식이 아닌 eager 방식(즉시로딩)을 사용(비추): 값을 가져올 때 proxy 객체에 정보를 채우는 것이 아닌 해당 객체에 바로 정보를 채워 영속성 이슈를 없앤다.
-    - 반환 된 값을 컨트롤러에서 사용하는 것이 아닌 서비스단에서 해당 값을 처리(추천): 영속성이 보장되는 서비스단에서 필요에 맞게 해당 값을 처리하여 영속성 이슈를 발생시키지 않는다.
-- @OneToMany 설정 시 jpa에서 필요한 테이블 자동생성 이슈
-  - 지난 번 ch02에서 ddl-auto 옵션을 아래와 같이 설정하였다. none라는 옵션은 jpa 사용에 필요한 테이블들은 직접 선언하여 생성하겠다는 옵션이다.
-```
-jpa:
-  hibernate:
-    ddl-auto: none
-```
-  - 그래서 @OneToMany로 테이블간에 매핑관계를 설정 시 매핑에 필요한 중간테이블을 생성하지 못하는 이슈가 발생하게 되었다. 그래서 ddl-auto 옵션을 update로 선언하여 이슈를 해결하였다. 아래는 ddl-auto에 대한 옵션 정리이다.
-```
-none: 스키마 작업을 하지 않음. 데이터베이스 테이블은 이미 존재해야 하며, JPA가 이를 자동으로 생성하거나 수정하지 않는다.
-update: 테이블이 없으면 생성하고, 기존 테이블이 있으면 변경 사항을 반영하여 업데이트한다.
-create: 애플리케이션 시작 시 기존 테이블을 모두 삭제한 후 새로 생성한다.
-create-drop: 애플리케이션 시작 시 테이블을 생성하고, 애플리케이션 종료 시 테이블을 삭제한다.
-validate: 데이터베이스와 엔티티 간의 스키마가 일치하는지 확인만 하고, 생성이나 업데이트 작업은 하지 않는다.
-```
-#### 3. 추가 정리 
-- 연관 매핑관계 정리하려고 하였으나 Ch.06에서 상세히 배우기 때문에 여기선 pass
+**1) `could not initialize proxy - no Session` 에러**  
+- **발생 원인**  
+  - JPA는 엔티티 값을 불러올 때 `lazy`(지연 로딩)와 `eager`(즉시 로딩) 방식을 제공.  
+  - `lazy` 방식에서는 컨트롤러 -> 서비스 -> 레포지토리로 값을 반환받을 때, 값을 초기화하지 않고 `proxy` 객체에 정보를 담음.  
+  - `proxy` 객체는 서비스 영역에서 트랜잭션과 동일한 생명주기를 가지므로 컨트롤러로 반환되는 순간 영속성 상태가 끝남.  
+  - 컨트롤러에서 반환된 값을 사용하려 할 때 `could not initialize proxy - no Session` 에러 발생.
+  - lazy로 설정된 연관 엔티티는 초기에는 프록시 객체로 대체되고, 실제 데이터는 액세스가 발생할 때 로드됩니다.
+  - `eager` 방식은 JPA에서 엔티티가 로드될 때 연관된 모든 엔티티를 즉시 함께 로드한다.
+- **해결 방법**:  
+  1. **`eager` 방식 사용 (비추천)**  
+     - `proxy` 객체 대신 값을 즉시 채워 영속성 이슈를 없앰.  
+     - 단, 성능 문제를 유발할 가능성 있음.  
+  2. **서비스단에서 값 처리 (추천)**  
+     - 영속성이 보장되는 서비스 영역에서 필요한 값을 처리.  
+     - 컨트롤러로 반환 전에 데이터를 가공하여 영속성 문제 방지.  
+- **Lazy(지연 로딩)와 Eager(즉시 로딩) 사용 예제**
+  ```
+    @Entity
+    public class User {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+    
+        private String name;
+
+        // @OneToMany, @ManyToMany는 기본적으로 LAZY로 설정되어 있다.
+        // 연관된 데이터가 많을 수 있기 때문에 그런 것 같다.
+        @OneToMany(mappedBy = "user", fetch = FetchType.LAZY) // 지연 로딩 설정
+        private List<Order> orders = new ArrayList<>();
+    }
+    
+    @Entity
+    public class Order {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+    
+        private String productName;
+
+        // @ManyToOne, @OneToOne은 기본적으로 EAGER로 설정되어 있다.
+        // 연관된 데이터가 적기 때문에 그런 것 같다.
+        @ManyToOne(fetch = FetchType.EAGER) // 즉시 로딩 설정
+        @JoinColumn(name = "user_id")
+        private User user;
+    }
+  ```
+---
+
+**2) @OneToMany 설정 시 테이블 자동 생성 이슈**  
+- **발생 원인**:  
+  - `ddl-auto: none` 설정으로 인해 JPA가 테이블 생성/수정을 수행하지 않음.  
+  - 따라서 `@OneToMany` 관계에서 필요한 중간 테이블이 생성되지 않아 매핑 이슈 발생.  
+
+- **해결 방법**:  
+  - `ddl-auto` 옵션을 `update`로 변경하여 이슈 해결.
+  - `@OneToMany`에서 필요한 중간 테이블을 해당 옵션을 통하여 자동으로 생성함.
+  - `update`는 테이블이 없으면 생성, 엔티티와 기존 테이블의 스키마는 변경 사항만 반영.
+  - ex)엔티티에는 있는 컬럼이 테이블에 없다면 컬럼을 생성하여 반영
+
+---
+
+#### 3. 추가 정리
+- 연관 매핑 관계는 Ch.06에서 상세히 다룰 예정이므로 여기에서는 생략.
