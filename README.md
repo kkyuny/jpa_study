@@ -71,3 +71,8 @@ public class BeanUtils implements ApplicationContextAware {
     }
 }
 ```
+##### 2. `BeanUtils`을 해당 엔티티 리스너에서 사용
+```
+UserHistoryRepository userHistoryRepository = BeanUtils.getBean(UserHistoryRepository.class);
+```
+- 위와 같이 엔티티 리스너에서 직접 엔티티를 빈을 주입받아 문제를 해결할 수 있다.
