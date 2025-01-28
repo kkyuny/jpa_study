@@ -5,3 +5,7 @@ CREATE TABLE users (
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
+
+CREATE TABLE address (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY
+);
