@@ -112,30 +112,29 @@
 - **READ_COMMITTED**: 커밋된 데이터만 읽기 허용.
 - **REPEATABLE_READ**: 트랜잭션 내 동일 데이터를 반복 조회 시 동일한 결과 제공.
 - **SERIALIZABLE**: 트랜잭션 간 완전한 격리. 락을 통해 순차적 처리.
-
+```
+@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+public void readUncommittedExample() {
+    // 커밋되지 않은 데이터 읽기 허용 (Dirty Read 가능)
+}
+```
 #### **전파(Propagation)**:
 - **REQUIRED**: 기본 설정. 기존 트랜잭션을 재사용, 없으면 새로 생성.
-- **REQUIRES_NEW**: 기존 트랜잭션과 별도로 새로운 트랜잭션 생성.
+- **REQUIRES_NEW**: 기존 트랜잭션과 별도로 새로운 트랜잭션 생성.(내부 호출 시 트랜잭션이 작용한다.)
 - **NESTED**: 상위 트랜잭션 내에 중첩 트랜잭션 생성.
 - **SUPPORTS**: 기존 트랜잭션이 있으면 참여, 없으면 트랜잭션 없이 실행.
 - **NOT_SUPPORTED**: 트랜잭션 없이 실행.
 - **MANDATORY**: 기존 트랜잭션이 있어야 하며, 없으면 예외 발생.
 - **NEVER**: 트랜잭션이 있으면 예외 발생.
+```
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public void requiresNewExample() {
+    // 기존 트랜잭션과 별도로 새로운 트랜잭션 생성
+}
+```
 
 ---
 
 ### 7. 트랜잭션 범위
 - **클래스 스코프**: 클래스에 선언된 트랜잭션이 모든 메서드에 적용.
 - **메서드 스코프**: 클래스의 트랜잭션 설정보다 메서드의 설정이 우선 적용.
-
----
-
-### 8. 코드 예시
-```java
-@OneToMany(fetch = FetchType.EAGER)
-@JoinColumn(name = "user_id", insertable = false, updatable = false)
-private List<UserHistory> userHistoryList = new ArrayList<>();
-
-@ManyToOne
-@ToString.Exclude
-private Users user;
