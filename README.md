@@ -55,7 +55,7 @@ public class User {
 
     private boolean deleted = false;
 }
-
+```
 --- 
 
 ### JPA의 No Session 문제
