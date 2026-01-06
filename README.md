@@ -50,3 +50,114 @@
 - **정형화된 업무 로직**, 단순 CRUD 기반의 시스템
 - 기존 시스템의 **DB 구조나 SQL을 그대로 사용해야 하는 경우**
 - 빠른 개발이 중요하고, ORM 학습/설정 비용을 피하고 싶은 경우
+
+## JPA 연관관계 정리
+### JPA 연관관계 설정 전체 핵심 규칙
+1. 연관관계의 주인 (가장 중요)
+DB 기준으로 판단
+FK를 가진 쪽 = 연관관계 주인
+주인만 INSERT / UPDATE 반영
+주인이 아닌 쪽에 mappedBy 설정
+mappedBy 쪽은 읽기 전용
+
+2. Fetch 전략 (절대 규칙)
+기본: 전부 LAZY
+@ManyToOne → 기본 EAGER ❌ → LAZY로 강제
+@OneToMany → 기본 LAZY (유지)
+@OneToOne → 기본 EAGER ❌ → LAZY로 강제
+@ManyToMany → 기본 LAZY (하지만 거의 안 씀)
+@ManyToOne(fetch = FetchType.LAZY)
+@OneToOne(fetch = FetchType.LAZY)
+
+3. ManyToOne / OneToMany (핵심 패턴)
+연관관계 주인 & mappedBy
+ManyToOne  → 연관관계 주인 (mappedBy ❌)
+OneToMany  → 주인 아님 (mappedBy ⭕)
+
+이유
+FK는 항상 Many 쪽 테이블에 존재
+따라서 ManyToOne이 주인
+예시
+```java
+// 연관관계 주인
+@ManyToOne(fetch = LAZY)
+@JoinColumn(name = "member_id")
+private Member member;
+```
+
+```java 주인 아님
+@OneToMany(mappedBy = "member")
+private List<Order> orders = new ArrayList<>();
+```
+❗ OneToMany에 mappedBy 없으면
+→ INSERT 후 UPDATE 추가 발생 (비효율)
+
+4. OneToMany 단독 사용 (비추천)
+FK가 반대편에 있음
+관리 주체 불명확
+update 쿼리 자동 발생
+→ ManyToOne + 양방향으로 대체
+
+5. OneToOne
+FK 가진 쪽이 주인
+반대편에 mappedBy
+무조건 LAZY
+대부분 ManyToOne(unique) 로 대체 가능
+```java
+@OneToOne(fetch = LAZY)
+@JoinColumn(name = "profile_id")
+```
+
+6. ManyToMany
+실무 사용 금지
+중간 테이블에 컬럼 추가 불가
+→ 중간 엔티티 분리
+
+7. 양방향 연관관계
+편의 메서드 필수
+한쪽만 설정하면 객체 그래프 깨짐
+
+```java
+public void addOrder(Order order) {
+    orders.add(order);
+    order.setMember(this);
+}
+```. Cascade
+
+라이프사이클 완전히 동일할 때만
+
+CascadeType.ALL 남용 ❌
+
+REMOVE 특히 위험
+
+9. OrphanRemoval
+
+부모가 완전 소유할 때만
+
+컬렉션에서 제거 = DB DELETE
+
+10. 컬렉션 타입
+
+List 사용
+
+필드 초기화 필수
+
+Set → equals/hashCode 문제
+
+private List<Order> orders = new ArrayList<>();
+
+11. equals / hashCode
+
+연관관계 필드 포함 ❌
+
+PK 기반 or 최소 비즈니스 키
+
+프록시 고려 필요
+
+12. 연관관계 개수
+
+필요한 것만
+
+조회 편의용 연관관계 ❌
+
+조회는 JPQL / fetch join으로 해결
