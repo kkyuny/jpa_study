@@ -55,9 +55,9 @@
 ### JPA 연관관계 설정 핵심 규칙
 1. 연관관계의 주인 (가장 중요)
 - DB 기준으로 판단
-- FK를 가진 쪽 = 연관관계 주인
-- 주인만 INSERT / UPDATE 반영
-- 주인이 아닌 쪽에 mappedBy 설정
+- FK를 가진 쪽 = 연관관계 주인(자식 엔티티)
+- 연관관계 수정 시 주인만 INSERT / UPDATE 반영(부모 테이블은 해당 작업과 관련이 없다.)
+- 주인이 아닌 쪽(부모 엔티티)에 mappedBy 설정
 - mappedBy 쪽은 읽기 전용
 
 2. Fetch 전략 (절대 규칙)
@@ -120,28 +120,9 @@
     ```
 
 8. Cascade
-- 라이프사이클 완전히 동일할 때만
-- CascadeType.ALL 남용 ❌
-- REMOVE 특히 위험
+- 부모(Entity)에서 발생한 persist, merge, remove 등 영속성 상태 변화를 자식(Entity)에 전파
+- 라이프사이클 완전히 동일할 때만 사용하고 CascadeType.ALL 남용 ❌
 
 9. OrphanRemoval
-- 부모가 완전 소유할 때만
-- 컬렉션에서 제거 = DB DELETE
-
-10. 컬렉션 타입
-- List 사용
-- 필드 초기화 필수
-- Set → equals/hashCode 문제
-    ```
-    private List<Order> orders = new ArrayList<>();
-    ```
-    
-11. equals / hashCode
-- 연관관계 필드 포함 ❌
-- PK 기반 or 최소 비즈니스 키
-- 프록시 고려 필요
-
-12. 연관관계 개수
-- 필요한 것만
-- 조회 편의용 연관관계 ❌
-- 조회는 JPQL / fetch join으로 해결
+- 컬렉션에서 제거 자식 엔티티 제거 시 자식 데이터가 DB에서 DELETE된다.
+- 부모가 완전 100% 소유할 때만 사용한다.
