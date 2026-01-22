@@ -126,3 +126,169 @@
 9. OrphanRemoval
 - 컬렉션에서 제거 자식 엔티티 제거 시 자식 데이터가 DB에서 DELETE된다.
 - 부모가 완전 100% 소유할 때만 사용한다.
+
+## QueryDSL
+### 1. QueryDSL이란?
+- 타입 세이프(Type-safe)한 JPQL 생성 라이브러리
+- 문자열 JPQL 대신 자바 코드로 쿼리 작성
+- 컴파일 시점에 오류 검출 가능
+- IDE에서 자동완성 기능으로 동적 쿼리 작성 용이하다.
+- 가독성 ↑, 유지보수 ↑
+
+### 2. 기본 환경 설정 (Spring Boot + JPA)
+### Gradle 설정
+
+```gradle
+dependencies {
+    implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+}
+```
+
+### Q클래스 생성
+- 엔티티 기반으로 자동 생성
+- 예: `Member` → `QMember`
+
+```java
+QMember member = QMember.member;
+```
+
+### 3. 기본 사용법
+### JPAQueryFactory
+
+```java
+@RequiredArgsConstructor
+@Repository
+public class MemberRepositoryCustomImpl {
+    private final JPAQueryFactory queryFactory;
+}
+```
+
+### select / from
+
+```java
+List<Member> result = queryFactory
+    .select(member)
+    .from(member)
+    .fetch();
+```
+
+## 5. where 조건
+
+### 기본 조건
+
+```java
+queryFactory
+    .selectFrom(member)
+    .where(member.age.gt(20))
+    .fetch();
+```
+
+### and / or
+
+```java
+.where(
+    member.age.gt(20)
+    .and(member.name.eq("kim"))
+)
+```
+
+### 6. 동적 쿼리
+### BooleanExpression 사용
+
+```java
+private BooleanExpression ageGt(Integer age) {
+    return age != null ? member.age.gt(age) : null;
+}
+```
+
+```java
+queryFactory
+    .selectFrom(member)
+    .where(ageGt(ageParam), nameEq(nameParam))
+    .fetch();
+```
+
+- ageGt()의 결과가 null이면 `where(null)`로 조건이 무시된다.
+
+## 7. 정렬 / 페이징
+
+### orderBy
+
+```java
+.orderBy(member.age.desc())
+```
+
+### 페이징
+
+```java
+queryFactory
+    .selectFrom(member)
+    .offset(0)
+    .limit(10)
+    .fetch();
+```
+
+### 8. 집계 함수
+
+```java
+queryFactory
+    .select(member.count())
+    .from(member)
+    .fetchOne();
+```
+- count, sum, avg, max, min
+
+### 9. 조인
+### 기본 조인
+
+```java
+queryFactory
+    .select(member)
+    .from(member)
+    .join(member.team, team)
+    .fetch();
+```
+
+### fetch join
+
+```java
+.join(member.team, team).fetchJoin()
+```
+
+### 10. 서브쿼리
+
+```java
+.select(member)
+.where(member.age.eq(
+    JPAExpressions
+        .select(memberSub.age.max())
+        .from(memberSub)
+))
+```
+
+### 11. DTO 조회
+
+### Projections
+
+```java
+.select(Projections.constructor(MemberDto.class,
+    member.name,
+    member.age
+))
+```
+
+### 12. 비교 연산자
+- gt → >
+- goe → >=
+- lt → <
+- loe → <=
+- eq → =
+- ne → !=
+
+### 13. fetch 정리
+- fetch(): 여러 건 조회 → List<T>, 0건이면 빈 리스트
+- fetchOne(): 정확히 1건 기대, 0건 null, 2건 이상 예외(유니크 값에 접근할 때 사용)
+- fetchFirst():첫 1건만 조회 (limit 1), 여러 건이어도 예외 없음
+- ❌fetchResults(): 조회 + count 자동 실행(페이징 처리 시 사용되었음), 정확성·성능 문제로 deprecated
